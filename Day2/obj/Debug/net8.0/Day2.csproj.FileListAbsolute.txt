@@ -1,0 +1,14 @@
+D:\Courses\ITI .NET\C#\Day2\bin\Debug\net8.0\Day2.exe
+D:\Courses\ITI .NET\C#\Day2\bin\Debug\net8.0\Day2.deps.json
+D:\Courses\ITI .NET\C#\Day2\bin\Debug\net8.0\Day2.runtimeconfig.json
+D:\Courses\ITI .NET\C#\Day2\bin\Debug\net8.0\Day2.dll
+D:\Courses\ITI .NET\C#\Day2\bin\Debug\net8.0\Day2.pdb
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\Day2.GeneratedMSBuildEditorConfig.editorconfig
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\Day2.AssemblyInfoInputs.cache
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\Day2.AssemblyInfo.cs
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\Day2.csproj.CoreCompileInputs.cache
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\Day2.dll
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\refint\Day2.dll
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\Day2.pdb
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\Day2.genruntimeconfig.cache
+D:\Courses\ITI .NET\C#\Day2\obj\Debug\net8.0\ref\Day2.dll
