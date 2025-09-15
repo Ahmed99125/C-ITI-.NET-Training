@@ -1,0 +1,6 @@
+.vs/
+*.vsidx
+# Ignore Visual Studio cache
+.vs/
+*.vsidx
+
