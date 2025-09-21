@@ -1,0 +1,15 @@
+D:\Courses\ITI .NET\C#\Day5&6\bin\Debug\net8.0\Day5&6.exe
+D:\Courses\ITI .NET\C#\Day5&6\bin\Debug\net8.0\Day5&6.deps.json
+D:\Courses\ITI .NET\C#\Day5&6\bin\Debug\net8.0\Day5&6.runtimeconfig.json
+D:\Courses\ITI .NET\C#\Day5&6\bin\Debug\net8.0\Day5&6.dll
+D:\Courses\ITI .NET\C#\Day5&6\bin\Debug\net8.0\Day5&6.pdb
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.GeneratedMSBuildEditorConfig.editorconfig
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.AssemblyInfoInputs.cache
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.AssemblyInfo.cs
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.csproj.CoreCompileInputs.cache
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.sourcelink.json
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.dll
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\refint\Day5&6.dll
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.pdb
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\Day5&6.genruntimeconfig.cache
+D:\Courses\ITI .NET\C#\Day5&6\obj\Debug\net8.0\ref\Day5&6.dll
