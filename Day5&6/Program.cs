@@ -49,13 +49,13 @@ namespace Day5
             //}
 
 
-            string str1 = "leetcode";
-            string str2 = "aabbcc";
-            string str3 = "swiss";
+            //string str1 = "leetcode";
+            //string str2 = "aabbcc";
+            //string str3 = "swiss";
 
-            Console.WriteLine(FirstUniqueChar(str1));
-            Console.WriteLine(FirstUniqueChar(str2));
-            Console.WriteLine(FirstUniqueChar(str3));
+            //Console.WriteLine(FirstUniqueChar(str1));
+            //Console.WriteLine(FirstUniqueChar(str2));
+            //Console.WriteLine(FirstUniqueChar(str3));
 
 
             return 0;
