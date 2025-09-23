@@ -1,0 +1,14 @@
+D:\Courses\ITI .NET\Linq\bin\Debug\net8.0\Linq.exe
+D:\Courses\ITI .NET\Linq\bin\Debug\net8.0\Linq.deps.json
+D:\Courses\ITI .NET\Linq\bin\Debug\net8.0\Linq.runtimeconfig.json
+D:\Courses\ITI .NET\Linq\bin\Debug\net8.0\Linq.dll
+D:\Courses\ITI .NET\Linq\bin\Debug\net8.0\Linq.pdb
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\Linq.GeneratedMSBuildEditorConfig.editorconfig
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\Linq.AssemblyInfoInputs.cache
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\Linq.AssemblyInfo.cs
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\Linq.csproj.CoreCompileInputs.cache
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\Linq.dll
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\refint\Linq.dll
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\Linq.pdb
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\Linq.genruntimeconfig.cache
+D:\Courses\ITI .NET\Linq\obj\Debug\net8.0\ref\Linq.dll
