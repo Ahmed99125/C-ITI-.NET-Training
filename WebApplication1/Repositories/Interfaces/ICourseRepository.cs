@@ -6,8 +6,9 @@ namespace WebApplication1.Repositories.Interfaces
     {
         IEnumerable<Course> GetCoursesByDepartment(int departmentId);
         IEnumerable<Course> GetCoursesByInstructor(int instructorId);
-        IEnumerable<Course> GetAll(string? search = null, int page = 1, int pageSize = 5);
-        int GetCount(string? search = null);
+        (IEnumerable<Course> Courses, int TotalCount) GetFiltered(string? title, int? departmentId, int? instructorId, int page, int pageSize);
+        IEnumerable<Course> GetCoursesByStudentId(int studentId);
         Course? GetById(int id);
     }
 }
+

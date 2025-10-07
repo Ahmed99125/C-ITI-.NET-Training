@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Repositories.Interfaces;
@@ -13,9 +14,9 @@ namespace WebApplication1.Repositories.Implementations
             _context = context;
         }
 
-        public IEnumerable<Student> GetAll() => _context.Students.ToList();
+        public IEnumerable<Student> GetAll() => _context.Students.Include(s => s.Department).ToList();
 
-        public Student GetById(int id) => _context.Students.Find(id);
+        public Student GetById(int id) => _context.Students.Include(s => s.Department).FirstOrDefault(s => s.Id == id);
 
         public void Add(Student student)
         {
@@ -43,5 +44,30 @@ namespace WebApplication1.Repositories.Implementations
         {
             return _context.Students.Where(s => s.DeptId == DeptId).ToList();
         }
+
+        // Fix: Changed tuple element names to match the interface (students, totalCount)
+        public (IEnumerable<Student> students, int totalCount) GetFiltered(string? name, int? departmentId, int? courseId, int page, int pageSize)
+        {
+            var query = _context.Students.Include(s => s.Department).AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(s => s.Name.Contains(name));
+            }
+            if (departmentId.HasValue)
+            {
+                query = query.Where(s => s.DeptId == departmentId.Value);
+            }
+            if (courseId.HasValue)
+            {
+                query = query.Where(s => s.CourseStudents.Any(cs => cs.CrsId == courseId.Value));
+            }
+
+            var totalCount = query.Count();
+            var students = query.OrderBy(s => s.Name).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return (students, totalCount);
+        }
     }
 }
+

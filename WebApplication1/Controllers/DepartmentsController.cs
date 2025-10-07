@@ -1,24 +1,30 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Filters;
+using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models;
 using WebApplication1.Repositories.Interfaces;
 
-namespace WebApplication1.Controllers {
-    [AuthorizeStudentFilter]
+namespace WebApplication1.Controllers
+{
     [Authorize(Roles = "Admin")]
     public class DepartmentsController : Controller
     {
         private readonly IDepartmentRepository _departmentRepository;
+        private const int PageSize = 5;
 
         public DepartmentsController(IDepartmentRepository departmentRepository)
         {
             _departmentRepository = departmentRepository;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string name, int page = 1)
         {
-            var departments = _departmentRepository.GetAll();
+            var (departments, totalCount) = _departmentRepository.GetFiltered(name, page, PageSize);
+
+            ViewBag.NameFilter = name;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
+            ViewBag.CurrentPage = page;
+
             return View(departments);
         }
 
@@ -32,6 +38,7 @@ namespace WebApplication1.Controllers {
         public IActionResult Create() => View();
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Department department)
         {
             if (ModelState.IsValid)
@@ -50,6 +57,7 @@ namespace WebApplication1.Controllers {
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit(Department department)
         {
             if (ModelState.IsValid)
@@ -60,10 +68,21 @@ namespace WebApplication1.Controllers {
             return View(department);
         }
 
-        public IActionResult Delete(int id)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
         {
-            _departmentRepository.Delete(id);
+            try
+            {
+                _departmentRepository.Delete(id);
+            }
+            catch (DbUpdateException)
+            {
+                TempData["Error"] = "This department cannot be deleted because it has instructors or courses assigned to it.";
+                return RedirectToAction(nameof(Index));
+            }
             return RedirectToAction(nameof(Index));
         }
     }
 }
+

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Emit;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models;
 
@@ -24,6 +22,7 @@ namespace WebApplication1.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // This correctly defines the composite primary key for the CourseStudent table.
             modelBuilder.Entity<CourseStudent>()
                 .HasKey(cs => new { cs.CrsId, cs.StdId });
 
@@ -39,6 +38,7 @@ namespace WebApplication1.Data
                 .HasForeignKey(cs => cs.StdId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            // Other configurations...
             modelBuilder.Entity<Course>()
                 .HasOne(c => c.Department)
                 .WithMany(d => d.Courses)
@@ -63,6 +63,5 @@ namespace WebApplication1.Data
                 .HasForeignKey(i => i.CrsId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
-
     }
 }

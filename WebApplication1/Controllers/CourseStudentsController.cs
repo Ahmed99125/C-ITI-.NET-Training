@@ -3,7 +3,8 @@ using WebApplication1.Filters;
 using WebApplication1.Models;
 using WebApplication1.Repositories.Interfaces;
 
-namespace WebApplication1.Controllers {
+namespace WebApplication1.Controllers
+{
     [AuthorizeStudentFilter]
     public class CourseStudentsController : Controller
     {
@@ -42,9 +43,10 @@ namespace WebApplication1.Controllers {
             return View(cs);
         }
 
-        public IActionResult Delete(int id)
+        // Fix: Updated the Delete action to accept both stdId and crsId to work with the composite key.
+        public IActionResult Delete(int stdId, int crsId)
         {
-            _courseStudentRepository.Delete(id);
+            _courseStudentRepository.Delete(stdId, crsId);
             return RedirectToAction(nameof(Index));
         }
     }

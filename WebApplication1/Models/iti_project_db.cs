@@ -1,11 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Models
 {
     public class Department
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
+        [Required]
+        public string Name { get; set; }
         public string? ManagerName { get; set; }
 
         public ICollection<Course> Courses { get; set; } = new List<Course>();
@@ -13,7 +16,7 @@ namespace WebApplication1.Models
         public ICollection<Instructor> Instructors { get; set; } = new List<Instructor>();
     }
 
-    public class Course
+    public class Course : IValidatableObject
     {
         public int Id { get; set; }
 
@@ -24,43 +27,43 @@ namespace WebApplication1.Models
         public int? Degree { get; set; }
 
         [Range(20, 50, ErrorMessage = "Minimum degree must be between 20 and 50")]
+        [Display(Name = "Minimum Degree")]
         public int? MinimumDegree { get; set; }
-
-        [CustomValidation(typeof(Course), nameof(ValidateDegree))]
-        public string? Validation { get; set; }
 
         public int? Hours { get; set; }
 
         [Display(Name = "Department")]
         [Required(ErrorMessage = "Department is required")]
-        public int DeptId { get; set; }
+        public int? DeptId { get; set; }
         public Department? Department { get; set; }
 
         public ICollection<CourseStudent> CourseStudents { get; set; } = new List<CourseStudent>();
         public ICollection<Instructor> Instructors { get; set; } = new List<Instructor>();
-        public static ValidationResult? ValidateDegree(Course course, ValidationContext context)
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (course.MinimumDegree.HasValue && course.Degree.HasValue)
+            if (MinimumDegree.HasValue && Degree.HasValue && MinimumDegree >= Degree)
             {
-                if (course.MinimumDegree >= course.Degree)
-                {
-                    return new ValidationResult("Minimum degree must be less than Degree");
-                }
+                yield return new ValidationResult("Minimum degree must be less than the full degree.", new[] { nameof(MinimumDegree) });
             }
-            return ValidationResult.Success;
         }
     }
 
     public class Student
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
+        [Required]
+        public string Name { get; set; }
         public string? Image { get; set; }
         public string? Address { get; set; }
         public int? Grade { get; set; }
 
-        public int DeptId { get; set; }
-        public required Department Department { get; set; }
+        [Display(Name = "Department")]
+        public int? DeptId { get; set; }
+        public Department? Department { get; set; }
+
+        [NotMapped]
+        public List<int> SelectedCourseIds { get; set; } = new List<int>();
 
         public ICollection<CourseStudent> CourseStudents { get; set; } = [];
     }
@@ -68,27 +71,33 @@ namespace WebApplication1.Models
     public class Instructor
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
+        [Required]
+        public string Name { get; set; }
         public decimal? Salary { get; set; }
         public string? Address { get; set; }
         public string? Image { get; set; }
 
-        public int DeptId { get; set; }
-        public required Department Department { get; set; }
+        [Display(Name = "Department")]
+        public int? DeptId { get; set; }
+        public Department? Department { get; set; }
 
-        public int CrsId { get; set; }
-        public required Course Course { get; set; }
+        [Display(Name = "Course")]
+        public int? CrsId { get; set; }
+        public Course? Course { get; set; }
     }
 
+    // This is the correct model definition, without a single 'Id' property.
     public class CourseStudent
     {
-        public int Id { get; set; }
         public int? Degree { get; set; }
 
+        [ForeignKey("Course")]
         public int CrsId { get; set; }
-        public required Course Course { get; set; }
+        public Course Course { get; set; }
 
+        [ForeignKey("Student")]
         public int StdId { get; set; }
-        public required Student Student { get; set; }
+        public Student Student { get; set; }
     }
 }
+

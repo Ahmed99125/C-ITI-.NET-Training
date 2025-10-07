@@ -1,6 +1,7 @@
 ﻿using WebApplication1.Data;
 using WebApplication1.Models;
 using WebApplication1.Repositories.Interfaces;
+using System.Linq;
 
 namespace WebApplication1.Repositories.Implementations
 {
@@ -13,12 +14,20 @@ namespace WebApplication1.Repositories.Implementations
         }
 
         public IEnumerable<CourseStudent> GetAll() => _context.CourseStudents.ToList();
-        public CourseStudent GetById(int id) => _context.CourseStudents.Find(id);
+
+        // This method is obsolete because there is no single Id.
+        public CourseStudent GetById(int id) => throw new System.NotImplementedException();
+
         public void Add(CourseStudent entity) { _context.CourseStudents.Add(entity); _context.SaveChanges(); }
         public void Update(CourseStudent entity) { _context.CourseStudents.Update(entity); _context.SaveChanges(); }
-        public void Delete(int id)
+
+        // This method is obsolete because there is no single Id.
+        public void Delete(int id) => throw new System.NotImplementedException();
+
+        // Fix: Implemented the correct Delete method that uses the composite key.
+        public void Delete(int studentId, int courseId)
         {
-            var entity = _context.CourseStudents.Find(id);
+            var entity = _context.CourseStudents.FirstOrDefault(cs => cs.StdId == studentId && cs.CrsId == courseId);
             if (entity != null)
             {
                 _context.CourseStudents.Remove(entity);
@@ -26,14 +35,16 @@ namespace WebApplication1.Repositories.Implementations
             }
         }
 
+
         public IEnumerable<CourseStudent> GetByStudentId(int studentId)
         {
-            return _context.CourseStudents.Where(cs => cs.Id == studentId).ToList();
+            return _context.CourseStudents.Where(cs => cs.StdId == studentId).ToList();
         }
 
         public IEnumerable<CourseStudent> GetByCourseId(int courseId)
         {
-            return _context.CourseStudents.Where(cs => cs.Id == courseId).ToList();
+            return _context.CourseStudents.Where(cs => cs.CrsId == courseId).ToList();
         }
     }
 }
+

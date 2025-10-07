@@ -29,5 +29,20 @@ namespace WebApplication1.Repositories.Implementations
         {
             return _context.Departments.FirstOrDefault(d => d.Name == name);
         }
+
+        public (IEnumerable<Department> Departments, int TotalCount) GetFiltered(string? name, int page, int pageSize)
+        {
+            var query = _context.Departments.AsQueryable();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                query = query.Where(d => d.Name.Contains(name));
+            }
+
+            var totalCount = query.Count();
+            var departments = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            return (departments, totalCount);
+        }
     }
 }

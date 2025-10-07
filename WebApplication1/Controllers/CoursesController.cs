@@ -1,62 +1,57 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.Filters;
 using WebApplication1.Models;
-using WebApplication1.Repositories.Implementations;
 using WebApplication1.Repositories.Interfaces;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication1.Controllers
 {
-    [Authorize(Roles = "Instructor")]
-    [AuthorizeStudentFilter]
+    [Authorize]
     public class CoursesController : Controller
     {
         private readonly ICourseRepository _courseRepository;
         private readonly IDepartmentRepository _departmentRepository;
+        private readonly IInstructorRepository _instructorRepository;
+        private const int PageSize = 5;
 
-        public CoursesController(ICourseRepository courseRepository, IDepartmentRepository departmentRepository)
+
+        public CoursesController(ICourseRepository courseRepository, IDepartmentRepository departmentRepository, IInstructorRepository instructorRepository)
         {
             _courseRepository = courseRepository;
             _departmentRepository = departmentRepository;
+            _instructorRepository = instructorRepository;
         }
 
-        //public IActionResult Index()
-        //{
-        //    var courses = _courseRepository.GetAll();
-
-        //    int? joinedCourseId = HttpContext.Session.GetInt32("SelectedCourseId");
-        //    ViewBag.JoinedCourseId = joinedCourseId;
-
-        //    return View(courses);
-        //}
-
-        public IActionResult Index(string search, int page = 1, int pageSize = 5)
+        public IActionResult Index(string title, int? departmentId, int? instructorId, int page = 1)
         {
-            var courses = _courseRepository.GetAll(search, page, pageSize);
-            int totalItems = _courseRepository.GetCount(search);
+            // Fix: Removed the role-specific filtering logic that relied on ApplicationUserId
+            // Now, all roles will see the same filtered list of courses.
 
+            var (courses, totalCount) = _courseRepository.GetFiltered(title, departmentId, instructorId, page, PageSize);
+
+            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name", departmentId);
+            ViewBag.Instructors = new SelectList(_instructorRepository.GetAll(), "Id", "Name", instructorId);
+            ViewBag.TitleFilter = title;
+            ViewBag.DepartmentFilter = departmentId;
+            ViewBag.InstructorFilter = instructorId;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
             ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-            ViewBag.Search = search;
-
-            // Keep selected course session for UI highlight
-            int? joinedCourseId = HttpContext.Session.GetInt32("SelectedCourseId");
-            ViewBag.JoinedCourseId = joinedCourseId;
 
             return View(courses);
         }
-        public IActionResult Details(int id)
+
+        [Authorize(Roles = "Admin")]
+        public IActionResult Create()
         {
-            var course = _courseRepository.GetById(id);
-            if (course == null) return NotFound();
-            return View(course);
+            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
+            return View();
         }
 
-        public IActionResult Create() => View();
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create(Course course)
         {
             if (ModelState.IsValid)
@@ -64,39 +59,52 @@ namespace WebApplication1.Controllers
                 _courseRepository.Add(course);
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name", course.DeptId);
+            return View(course);
+        }
 
-            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
+        [Authorize(Roles = "Admin")]
+        public IActionResult Edit(int id)
+        {
+            var course = _courseRepository.GetById(id);
+            if (course == null) return NotFound();
 
+            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name", course.DeptId);
             return View(course);
         }
 
         [HttpPost]
-        public IActionResult Edit(Course course)
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Edit(int id, Course course)
         {
+            if (id != course.Id) return BadRequest();
+
             if (ModelState.IsValid)
             {
                 _courseRepository.Update(course);
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
+            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name", course.DeptId);
             return View(course);
         }
 
-        public IActionResult Delete(int id)
+        public IActionResult Details(int id)
+        {
+            var course = _courseRepository.GetById(id);
+            if (course == null) return NotFound();
+            return View(course);
+        }
+
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public IActionResult DeleteConfirmed(int id)
         {
             _courseRepository.Delete(id);
             return RedirectToAction(nameof(Index));
         }
-
-        [HttpPost]
-        public IActionResult JoinCourse(int id)
-        {
-            // Save selected course ID in session
-            HttpContext.Session.SetInt32("SelectedCourseId", id);
-
-            // Redirect back to Index
-            return RedirectToAction("Index");
-        }
     }
 }
+

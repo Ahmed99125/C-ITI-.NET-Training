@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Models;
+using WebApplication1.Repositories.Interfaces;
 using WebApplication1.ViewModels;
 
 namespace WebApplication1.Controllers
@@ -20,9 +22,6 @@ namespace WebApplication1.Controllers
             _roleManager = roleManager;
         }
 
-        // =============================
-        // LOGIN
-        // =============================
         [HttpGet]
         public IActionResult Login() => View();
 
@@ -32,23 +31,21 @@ namespace WebApplication1.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var result = await _signInManager.PasswordSignInAsync(
-                model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-            if (result.Succeeded)
-                return RedirectToAction("Index", "Home");
+            var user = await _userManager.FindByNameAsync(model.Username);
+            if (user != null)
+            {
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+                if (result.Succeeded)
+                    return RedirectToAction("Index", "Home");
+            }
 
             ModelState.AddModelError("", "Invalid login attempt.");
             return View(model);
         }
 
-        // =============================
-        // REGISTER
-        // =============================
         [HttpGet]
         public IActionResult Register()
         {
-            // Pass available roles to the view
             ViewBag.Roles = _roleManager.Roles.Select(r => r.Name).ToList();
             return View();
         }
@@ -68,7 +65,6 @@ namespace WebApplication1.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Ensure the role exists (in case it wasn't seeded yet)
                     if (!await _roleManager.RoleExistsAsync(model.Role))
                         await _roleManager.CreateAsync(new IdentityRole(model.Role));
 
@@ -82,14 +78,10 @@ namespace WebApplication1.Controllers
                     ModelState.AddModelError("", error.Description);
             }
 
-            // Reload roles if validation fails
             ViewBag.Roles = _roleManager.Roles.Select(r => r.Name).ToList();
             return View(model);
         }
 
-        // =============================
-        // LOGOUT
-        // =============================
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
@@ -97,10 +89,8 @@ namespace WebApplication1.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // =============================
-        // ACCESS DENIED
-        // =============================
         [HttpGet]
         public IActionResult AccessDenied() => View();
     }
 }
+

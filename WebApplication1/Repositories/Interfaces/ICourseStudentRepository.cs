@@ -6,5 +6,8 @@ namespace WebApplication1.Repositories.Interfaces
     {
         IEnumerable<CourseStudent> GetByStudentId(int studentId);
         IEnumerable<CourseStudent> GetByCourseId(int courseId);
+        // Fix: Updated Delete method to use the composite key
+        void Delete(int studentId, int courseId);
     }
 }
+
