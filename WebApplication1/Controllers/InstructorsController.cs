@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using WebApplication1.Models;
 using WebApplication1.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace WebApplication1.Controllers
 {
-    [Authorize(Roles = "Admin,HR")]
+    [Authorize]
     public class InstructorsController : Controller
     {
         private readonly IInstructorRepository _instructorRepository;
@@ -26,6 +25,7 @@ namespace WebApplication1.Controllers
             _courseRepository = courseRepository;
         }
 
+        [Authorize(Roles = "Admin,HR")]
         public IActionResult Index(string name, int? departmentId, int page = 1)
         {
             var (instructors, totalCount) = _instructorRepository.GetFiltered(name, departmentId, page, PageSize);
@@ -37,6 +37,18 @@ namespace WebApplication1.Controllers
             ViewBag.CurrentPage = page;
 
             return View(instructors);
+        }
+
+        // This is the required Details action.
+        [Authorize(Roles = "Admin,HR")]
+        public IActionResult Details(int id)
+        {
+            var instructor = _instructorRepository.GetById(id);
+            if (instructor == null)
+            {
+                return NotFound();
+            }
+            return View(instructor);
         }
 
         [Authorize(Roles = "Admin")]
@@ -99,7 +111,7 @@ namespace WebApplication1.Controllers
             }
             catch (DbUpdateException)
             {
-                TempData["Error"] = "Could not delete instructor. They may be assigned to departments or courses.";
+                TempData["Error"] = "Could not delete instructor. They may be assigned to courses or departments.";
             }
             return RedirectToAction(nameof(Index));
         }
