@@ -1,164 +1,102 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using WebApplication1.Data;
+using WebApplication1.Filters;
 using WebApplication1.Models;
+using WebApplication1.Repositories.Implementations;
+using WebApplication1.Repositories.Interfaces;
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Roles = "Instructor")]
+    [AuthorizeStudentFilter]
     public class CoursesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICourseRepository _courseRepository;
+        private readonly IDepartmentRepository _departmentRepository;
 
-        public CoursesController(ApplicationDbContext context)
+        public CoursesController(ICourseRepository courseRepository, IDepartmentRepository departmentRepository)
         {
-            _context = context;
+            _courseRepository = courseRepository;
+            _departmentRepository = departmentRepository;
         }
 
-        // GET: Courses
-        public async Task<IActionResult> Index()
+        //public IActionResult Index()
+        //{
+        //    var courses = _courseRepository.GetAll();
+
+        //    int? joinedCourseId = HttpContext.Session.GetInt32("SelectedCourseId");
+        //    ViewBag.JoinedCourseId = joinedCourseId;
+
+        //    return View(courses);
+        //}
+
+        public IActionResult Index(string search, int page = 1, int pageSize = 5)
         {
-            var applicationDbContext = _context.Courses.Include(c => c.Department);
-            return View(await applicationDbContext.ToListAsync());
+            var courses = _courseRepository.GetAll(search, page, pageSize);
+            int totalItems = _courseRepository.GetCount(search);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewBag.Search = search;
+
+            // Keep selected course session for UI highlight
+            int? joinedCourseId = HttpContext.Session.GetInt32("SelectedCourseId");
+            ViewBag.JoinedCourseId = joinedCourseId;
+
+            return View(courses);
         }
-
-        // GET: Courses/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var course = await _context.Courses
-                .Include(c => c.Department)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
+            var course = _courseRepository.GetById(id);
+            if (course == null) return NotFound();
             return View(course);
         }
 
-        // GET: Courses/Create
-        public IActionResult Create()
-        {
-            ViewData["DeptId"] = new SelectList(_context.Departments, "Id", "Id");
-            return View();
-        }
+        public IActionResult Create() => View();
 
-        // POST: Courses/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Degree,MinimumDegree,Hours,DeptId")] Course course)
+        public IActionResult Create(Course course)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(course);
-                await _context.SaveChangesAsync();
+                _courseRepository.Add(course);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DeptId"] = new SelectList(_context.Departments, "Id", "Id", course.DeptId);
+
+            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
+
             return View(course);
         }
 
-        // GET: Courses/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var course = await _context.Courses.FindAsync(id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-            ViewData["DeptId"] = new SelectList(_context.Departments, "Id", "Id", course.DeptId);
-            return View(course);
-        }
-
-        // POST: Courses/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Degree,MinimumDegree,Hours,DeptId")] Course course)
+        public IActionResult Edit(Course course)
         {
-            if (id != course.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(course);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CourseExists(course.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _courseRepository.Update(course);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DeptId"] = new SelectList(_context.Departments, "Id", "Id", course.DeptId);
+
+            ViewBag.Departments = new SelectList(_departmentRepository.GetAll(), "Id", "Name");
             return View(course);
         }
 
-        // GET: Courses/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var course = await _context.Courses
-                .Include(c => c.Department)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (course == null)
-            {
-                return NotFound();
-            }
-
-            return View(course);
-        }
-
-        // POST: Courses/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var course = await _context.Courses.FindAsync(id);
-            if (course != null)
-            {
-                _context.Courses.Remove(course);
-            }
-
-            await _context.SaveChangesAsync();
+            _courseRepository.Delete(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CourseExists(int id)
+        [HttpPost]
+        public IActionResult JoinCourse(int id)
         {
-            return _context.Courses.Any(e => e.Id == id);
+            // Save selected course ID in session
+            HttpContext.Session.SetInt32("SelectedCourseId", id);
+
+            // Redirect back to Index
+            return RedirectToAction("Index");
         }
     }
 }

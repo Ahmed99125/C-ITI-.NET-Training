@@ -49,6 +49,13 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+<div class="form-group">
+    <label asp-for="DeptId"></label>
+    <select asp-for="DeptId" class="form-control" asp-items="ViewBag.Departments"></select>
+    <span asp-validation-for="DeptId" class="text-danger"></span>
+</div>
+
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
